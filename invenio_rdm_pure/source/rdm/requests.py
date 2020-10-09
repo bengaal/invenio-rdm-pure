@@ -20,6 +20,8 @@ class Requests:
         headers = {}
         if "content_type" in parameters:
             headers["Content-Type"] = "application/json"
+        if "accept" in parameters:
+            headers["Accept"] = "application/json"
         if "file" in parameters:
             headers["Content-Type"] = "application/octet-stream"
         if "token" in parameters:
