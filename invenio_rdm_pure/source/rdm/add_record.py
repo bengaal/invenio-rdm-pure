@@ -553,7 +553,7 @@ class RdmAddRecord:
         """
 
         # Get from RDM file size and internalReview
-        params = {"sort": "mostrecent", "size": "100", "page": "1", "q": self.uuid}
+        params = {"sort": "newest", "size": "10", "page": "1", "q": self.uuid}
         response = self.rdm_requests.get_metadata(params)
 
         if response.status_code >= 300:

@@ -134,7 +134,7 @@ class Requests:
     def get_metadata_by_query(self, query_value: str):
         """ Query RDM record metadata """
 
-        params = {"sort": "mostrecent", "size": 250, "page": 1, "q": f'"{query_value}"'}
+        params = {"sort": "newest", "size": 250, "page": 1, "q": f'"{query_value}"'}
         response = self.get_metadata(params)
 
         self._check_response(response)
