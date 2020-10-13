@@ -55,7 +55,7 @@ class Requests:
         response = requests.get(url, headers=headers, verify=False)
         open(temporary_files_name["get_rdm_metadata"], "wb").write(response.content)
 
-        self._check_response(response)
+        self._is_valid_response(response)
         return response
 
     def post_metadata(self, data: dict):
@@ -74,7 +74,7 @@ class Requests:
 
         open(temporary_files_name["post_rdm_response"], "wb").write(response.content)
 
-        self._check_response(response)
+        self._is_valid_response(response)
         return response
 
     def put_metadata(self, recid: str, data: object):
@@ -91,7 +91,7 @@ class Requests:
             url, headers=headers, params=params, data=data, verify=False
         )
 
-        self._check_response(response)
+        self._is_valid_response(response)
         return response
 
     def put_file(self, file_path_name: str, recid: str):
@@ -113,10 +113,10 @@ class Requests:
 
         response = requests.delete(url, headers=headers, verify=False)
 
-        self._check_response(response)
+        self._is_valid_response(response)
         return response
 
-    def _check_response(self, response):
+    def _is_valid_response(self, response: Response) -> bool:
         http_code = response.status_code
         if http_code >= 300 and http_code != 429:
             self.report.add(str(response.content))
@@ -140,7 +140,7 @@ class Requests:
         params = {"sort": "newest", "size": 250, "page": 1, "q": f'"{query_value}"'}
         response = self.get_metadata(params)
 
-        self._check_response(response)
+        self._is_valid_response(response)
         return response
 
     def get_metadata_by_recid(self, recid: str):
@@ -154,5 +154,5 @@ class Requests:
         # RDM request
         response = self.get_metadata({}, recid)
 
-        self._check_response(response)
+        self._is_valid_response(response)
         return response
