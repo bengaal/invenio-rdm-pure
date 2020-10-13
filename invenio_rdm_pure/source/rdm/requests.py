@@ -36,6 +36,9 @@ class Requests:
         headers = self._request_headers(["content_type", "token"])
         params = self._request_params()
 
+        if recid:
+            recid = "/" + recid
+
         url = f"{rdm_records_url}{recid}"
 
         # Add parameters to url
