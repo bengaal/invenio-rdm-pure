@@ -33,8 +33,7 @@ class Requests:
 
     def get_metadata(self, additional_parameters: str, recid=""):
 
-        headers = self._request_headers(["content_type", "token"])
-        params = self._request_params()
+        headers = self._request_headers(["content_type", "accept"])
 
         if recid:
             recid = "/" + recid
