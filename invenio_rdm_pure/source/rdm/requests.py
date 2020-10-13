@@ -74,8 +74,55 @@ class Requests:
 
         open(temporary_files_name["post_rdm_response"], "wb").write(response.content)
 
-        self._is_valid_response(response)
+        record_posted_successfully = self._is_valid_response(
+            response
+        ) and self._is_valid_post_record_response(response)
+
+        recid = response.json()["id"]
+
+        if record_posted_successfully:
+            draft_exists = self._draft_exists(recid)
+            if draft_exists:
+                self.publish_record(recid)
+        else:
+            None  # TODO: implement error handling / logging
+
         return response
+
+    def publish_record(self, recid: str) -> None:
+        draft_action_api_url = rdm_records_url + "/{}/draft/actions/{}"
+        headers = self._request_headers(["content_type", "accept"])
+        response = requests.post(
+            draft_action_api_url.format(recid, "publish"), headers=headers, verify=False
+        )
+
+    def _draft_exists(self, recid: str) -> bool:
+        draft_api_url = rdm_records_url + "/{}/draft"
+        response = requests.get(draft_api_url.format(recid), verify=False)
+        if response.status_code is not 200 or not response.json():
+            return False
+        else:
+            return True
+
+    def _is_valid_post_record_response(self, response: Response) -> bool:
+        fields_to_check = [
+            "revision_id",
+            "conceptid",
+            "created",
+            "access",
+            "id",
+            "metadata",
+            "expires_at",
+            "updated",
+            "links",
+        ]
+        response_keys = response.json().keys()
+
+        for key in fields_to_check:
+            if key not in response_keys:
+                return False
+
+        return True
 
     def put_metadata(self, recid: str, data: object):
         """ Used to update an existing record """
