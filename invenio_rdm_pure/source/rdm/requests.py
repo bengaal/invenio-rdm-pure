@@ -1,15 +1,18 @@
-import requests
-import time
 import json
+import time
+
+import requests
+from requests.models import Response
+from source.reports import Reports
+
 from setup import (
-    token_rdm,
+    push_dist_sec,
     rdm_host_url,
     rdm_records_url,
     temporary_files_name,
+    token_rdm,
     wait_429,
-    push_dist_sec,
 )
-from source.reports import Reports
 
 
 class Requests:
