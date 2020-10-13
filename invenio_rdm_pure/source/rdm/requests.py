@@ -55,21 +55,17 @@ class Requests:
         self._check_response(response)
         return response
 
-    def post_metadata(self, data: str):
+    def post_metadata(self, data: dict):
         """ Used to create a new record """
 
-        open(temporary_files_name["post_rdm_metadata"], "w").write(data)
+        open(temporary_files_name["post_rdm_metadata"], "w").write(str(data))
 
-        headers = self._request_headers(["content_type"])
-        params = self._request_params()
-
-        data_utf8 = data.encode("utf-8")
+        headers = self._request_headers(["content_type", "accept"])
 
         response = requests.post(
             rdm_records_url,
+            json=data,
             headers=headers,
-            params=params,
-            data=data_utf8,
             verify=False,
         )
 

@@ -20,7 +20,7 @@ class Testing:
 
     def _post_get_rdm_record(self):
         # RDM post metadata
-        data = open(f"{dirpath}/source/rdm/testing/example_data.json", "r").read()
+        data = json.load(open(f"{dirpath}/source/rdm/testing/example_data.json", "r"))
         response = self.rdm_requests.post_metadata(data)
         response = self._response_check_post(response, "\nRDM post metadata")
         if not response:

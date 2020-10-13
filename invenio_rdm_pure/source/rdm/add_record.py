@@ -144,9 +144,6 @@ class RdmAddRecord:
         # Add pure_extensions to the data to be submitted
         self.data["extensions"] = self.pure_extensions
 
-        # Convert to json string
-        self.data = json.dumps(self.data)
-
         # Post request to RDM
         self._post_metadata()
 
