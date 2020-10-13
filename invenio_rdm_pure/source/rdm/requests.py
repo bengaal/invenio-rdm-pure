@@ -49,7 +49,7 @@ class Requests:
             url = url[:-1]
 
         # Sending request
-        response = requests.get(url, headers=headers, params=params, verify=False)
+        response = requests.get(url, headers=headers, verify=False)
         open(temporary_files_name["get_rdm_metadata"], "wb").write(response.content)
 
         self._check_response(response)
