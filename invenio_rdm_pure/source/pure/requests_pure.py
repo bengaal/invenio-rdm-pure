@@ -96,6 +96,7 @@ def get_pure_record_metadata_by_uuid(uuid: str):
 
     return json.loads(response.content)
 
+
 def get_next_page(resp_json):
     """Description."""
     if "navigationLinks" in resp_json:
