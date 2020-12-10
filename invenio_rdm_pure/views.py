@@ -14,6 +14,8 @@ from flask_babelex import gettext as _
 
 from .setup import dirpath, pure_import_file
 from .source.rdm.run.groups import user_externalid
+from .source.rdm.run.synchronizer import Synchronizer
+from .source.pure.requests_pure import get_pure_research_outputs
 
 blueprint = Blueprint(
     "invenio_rdm_pure",
@@ -43,4 +45,14 @@ def index3():
     command = "python /home/bootcamp/src/cli2/invenio-rdm-pure/invenio_rdm_pure/cli.py "
     command += f"owner --identifier='externalId' --identifierValue='{externalId}'"
     os.system(command)
+    return "Task successfully completed"
+
+
+@blueprint.route("/test")
+def test():
+    """Test."""
+    get_pure_research_outputs()
+    synchronizer = Synchronizer()
+    synchronizer._get_missing_synchronization_dates()
+
     return "Task successfully completed"

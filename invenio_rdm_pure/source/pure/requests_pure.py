@@ -15,8 +15,28 @@ from requests.auth import HTTPBasicAuth
 
 from ...setup import temporary_files_name
 from ..reports import Reports
+import os
 
 reports = Reports()
+
+
+def get_pure_research_outputs() -> dict:
+    """Gets all research outputs from Pure."""
+    pure_api_key = current_app.config.get("PURE_API_KEY")
+    pure_rest_api_url = current_app.config.get("PURE_API_URL")
+    headers = {
+        "api-key": pure_api_key,
+        "accept": "application/json",
+    }
+    url = pure_rest_api_url + "research-outputs?fields=type.uri&size=10000&offset=70000"
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        path = os.path.join(
+            os.path.dirname(__file__), "data"
+        )
+        if not os.path.exists(path):
+            os.makedirs(path)
+        open(os.path.join(path, "research_output7.json"), "w+").write(response.text)
 
 
 def get_pure_metadata(endpoint, identifier="", parameters={}, review=True):
