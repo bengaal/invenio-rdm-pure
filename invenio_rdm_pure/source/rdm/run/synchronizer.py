@@ -10,7 +10,11 @@
 import datetime
 import json
 import os
+import threading
+import time
+import traceback
 from concurrent.futures import ThreadPoolExecutor
+from threading import Lock, current_thread
 from typing import List
 
 from flask import current_app
@@ -21,6 +25,7 @@ from ...pure.requests_pure import (
     get_research_outputs,
 )
 from ...utils import get_dates_in_span
+from ..converter import Converter
 
 
 class Synchronizer(object):
@@ -28,6 +33,9 @@ class Synchronizer(object):
 
     def __init__(self):
         """Default Constructor of the class Synchronizer."""
+        self.converted_records = 0
+        self.converted_records_lock = Lock()
+        self.all_records = 0
 
     def run_initial_synchronization(self) -> None:
         """Run the initial synchronization.
@@ -48,16 +56,26 @@ class Synchronizer(object):
         There are ca. 65300 research output entries in Pure (15.12.2020).
         """
         research_count = get_research_output_count(pure_api_key, pure_api_url)
+        self.all_records = research_count
         assert research_count != -1, "Failed to get research output count"
         with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-            for job_counter in range(0, research_count // granularity):
-                executor.submit(
-                    self.synchronize_research_outputs,
-                    pure_api_key,
-                    pure_api_url,
-                    granularity,
-                    job_counter * granularity,
-                )
+            for job_counter in range(0, (research_count // granularity) + 1):
+                if job_counter == (research_count // granularity):
+                    executor.submit(
+                        self.synchronize_research_outputs,
+                        pure_api_key,
+                        pure_api_url,
+                        research_count - job_counter * granularity,
+                        job_counter * granularity,
+                    )
+                else:
+                    executor.submit(
+                        self.synchronize_research_outputs,
+                        pure_api_key,
+                        pure_api_url,
+                        granularity,
+                        job_counter * granularity,
+                    )
 
     def synchronize_research_outputs(
         self, pure_api_key: str, pure_api_url: str, size: int, offset: int
@@ -68,15 +86,38 @@ class Synchronizer(object):
         The *size* parameter defines the length of the series.
         The *offset* parameter defines the offset of the series.
         """
-        research_outputs = get_research_outputs(
-            pure_api_key,
-            pure_api_url,
-            size,
-            offset,
-        )  # Fetch research outputs from Pure
-
+        while True:
+            research_outputs = get_research_outputs(
+                pure_api_key,
+                pure_api_url,
+                size,
+                offset,
+            )  # Fetch research outputs from Pure
+            if research_outputs:
+                break
+            else:
+                time.sleep(0.001)
+        # Check if list is not empty
+        converter = Converter()
+        i = 1
         for research_output in research_outputs:
-            pass  # TODO: Convert research outputs to marc21 record
+            try:
+                converter.convert_pure_json_to_marc21_xml(research_output)
+                i = i + 1
+            except RuntimeError:
+                traceback.print_exc()
+
+        self.converted_records_lock.acquire()
+        self.converted_records = self.converted_records + len(research_outputs)
+        print(
+            "Thread: "
+            + str(threading.current_thread().ident)
+            + " added records. "
+            + str(self.converted_records)
+            + "/"
+            + str(self.all_records)
+        )
+        self.converted_records_lock.release()
 
         # TODO: Store record with the help of marc21 module
         pass
