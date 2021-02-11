@@ -42,6 +42,7 @@ install_requires = [
     "invenio-access>=1.3.3",
     "invenio-accounts>=1.4.3",
     "lxml>=4.6.2",
+    "faker>=5.0.2",
 ]
 
 packages = find_packages()
@@ -68,6 +69,9 @@ setup(
     include_package_data=True,
     platforms="any",
     entry_points={
+        "flask.commands": [
+            "pure = invenio_rdm_pure.cli:pure",
+        ],
         "invenio_base.apps": [
             "invenio_rdm_pure = invenio_rdm_pure:InvenioRdmPure",
         ],

@@ -24,6 +24,15 @@ from ..setup import (
 )
 
 
+def load_file_as_string(path):
+    """Open a file and return the content as UTF-8 encoded string."""
+    if not isabs(path):
+        path = join(dirname(__file__), path)
+    with open(join(dirname(__file__), path), "rb") as fp:
+        input = fp.read()
+        return input.decode("utf-8")
+
+
 def add_spaces(value: str, max_length=5):
     """Description."""
     # 5 is the standard maximum length of the given value
